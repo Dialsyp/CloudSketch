@@ -42,14 +42,14 @@ export const BaseResourceNode = memo(({
         type="target"
         position={Position.Left}
         id="target"
-        className="!w-3 !h-3 !border-2 !border-white"
+        className="w-3! h-3! border-2! border-white!"
         style={{ background: color }}
       />
 
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-white/20">
         <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center text-xl shadow-inner">
-          {icon}
+          <def.icon />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[10px] font-black uppercase tracking-widest opacity-60">

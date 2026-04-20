@@ -39,7 +39,7 @@ export function DragGhost({
                       bg-white border-2 border-blue-500
                       rounded-xl shadow-2xl opacity-90
                       text-sm font-semibold text-slate-700">
-        <span className="text-xl">{def.icon}</span>
+        <span className="text-xl"><def.icon /></span>
         <span>{def.label}</span>
       </div>
     </div>
