@@ -1,6 +1,5 @@
 // app/Visuel/page.tsx
 "use client";
-import Link from "next/link";
 import { useReactFlowHandlers } from "../components/useReactFlowHandlers";
 import { useSidebarHandlers } from "../components/useSidebarHandlers";
 import { Sidebar } from "../components/sideBar";

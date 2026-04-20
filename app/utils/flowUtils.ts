@@ -1,7 +1,7 @@
 import { XYPosition } from "@xyflow/react";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
- * Calcule la position absolue d'un nœud dans le canvas, 
+ * Calcule la position absolue d'un nœud dans le canvas,
  * en tenant compte de l'imbrication dans des parents.
  */
 export function getAbsolutePosition(node: any, allNodes: any[]): XYPosition {
@@ -20,7 +20,10 @@ export function getAbsolutePosition(node: any, allNodes: any[]): XYPosition {
 /**
  * Vérifie si une position (écran) est à l'intérieur des limites du canvas React Flow.
  */
-export function isInFlowBounds(position: XYPosition, flowRect: DOMRect): boolean {
+export function isInFlowBounds(
+  position: XYPosition,
+  flowRect: DOMRect,
+): boolean {
   return (
     position.x >= flowRect.left &&
     position.x <= flowRect.right &&
@@ -35,7 +38,7 @@ export function isInFlowBounds(position: XYPosition, flowRect: DOMRect): boolean
  */
 export function findParentContainer(
   allNodes: any[],
-  dropPosition: XYPosition
+  dropPosition: XYPosition,
 ): any | null {
   const CONTAINER_PRIORITY: Record<string, number> = {
     azurerm_subnet: 0,
@@ -47,8 +50,12 @@ export function findParentContainer(
     .filter((node) => node.data?.isContainer === true)
     .map((container) => {
       const absolutePos = getAbsolutePosition(container, allNodes);
-      const w = container.measured?.width ?? (container.style?.width as number) ?? 300;
-      const h = container.measured?.height ?? (container.style?.height as number) ?? 200;
+      const w =
+        container.measured?.width ?? (container.style?.width as number) ?? 300;
+      const h =
+        container.measured?.height ??
+        (container.style?.height as number) ??
+        200;
 
       const isInside =
         dropPosition.x >= absolutePos.x &&
@@ -69,7 +76,7 @@ export function findParentContainer(
   if (candidates.length === 0) return null;
 
   candidates.sort((a, b) =>
-    a.priority !== b.priority ? a.priority - b.priority : a.area - b.area
+    a.priority !== b.priority ? a.priority - b.priority : a.area - b.area,
   );
 
   return candidates[0].node;
@@ -81,7 +88,7 @@ export function findParentContainer(
 export function findNodeAtPosition(
   allNodes: any[],
   dropPosition: XYPosition,
-  compatibleTypes?: string[]
+  compatibleTypes?: string[],
 ): any | null {
   const candidates = allNodes
     .filter((node) => !compatibleTypes || compatibleTypes.includes(node.type))

@@ -4,7 +4,7 @@ import { ReactFlow, Controls, Background } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { config } from "../contants/config";
 import ContextMenu from "./ContextMenu";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface FlowCanvasProps {
   nodes: any[];
   edges: any[];

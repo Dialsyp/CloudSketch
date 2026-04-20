@@ -6,8 +6,7 @@ import StorageNodeType from "../nodesTypes/storage.nodeType";
 import SubnetNodeType from "../nodesTypes/subnet.nodeType";
 import VmNodeType from "../nodesTypes/vm.nodeType";
 import VnetNodeType from "../nodesTypes/Vnet.nodeType";
-import { nodeDefinitions } from "./nodeDefinition";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export const config = {
   initialNodes: [
     // {

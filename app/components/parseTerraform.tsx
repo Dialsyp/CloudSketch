@@ -1,6 +1,6 @@
 import hclToJson from "hcl-to-json";
 import { getCategoryResource } from "../contants/ressourceMap";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type Node = {
   id: string;
   type: string;

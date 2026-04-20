@@ -2,7 +2,7 @@
 
 import { XYPosition } from "@xyflow/react";
 import { nodeDefinitions } from "../contants/nodeDefinition";
-import DraggableNode, { DraggableNodeProps } from "./DraggableNode";
+import DraggableNode  from "./DraggableNode";
 import { PropsWithChildren } from "react";
 
 interface NodeItemPropsBase {

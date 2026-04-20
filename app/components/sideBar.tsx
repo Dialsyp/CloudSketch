@@ -3,18 +3,20 @@
 
 import { useState, useMemo } from "react";
 import {
-  FiSearch, FiX, FiChevronDown, FiArrowRight, FiBookOpen
+  FiSearch,
+  FiX,
+  FiChevronDown,
+  FiArrowRight,
+  FiBookOpen,
 } from "react-icons/fi";
+import { HiOutlineRectangleGroup } from "react-icons/hi2";
 import {
-  HiOutlineRectangleGroup,
-} from "react-icons/hi2";
-import {
-  MdOutlineComputer, MdOutlineStorage, MdOutlineMonitor,
+  MdOutlineComputer,
+  MdOutlineStorage,
+  MdOutlineMonitor,
   MdOutlineSecurity,
 } from "react-icons/md";
-import {
-  BiNetworkChart, BiData,
-} from "react-icons/bi";
+import { BiNetworkChart, BiData } from "react-icons/bi";
 
 import { nodeDefinitions } from "../contants/nodeDefinition";
 import { NodeItem } from "./NodeItem";
@@ -105,49 +107,61 @@ const TEMPLATES = [
 /* ── SIDEBAR ────────────────────────────────────────────────── */
 export function Sidebar() {
   const { handleNodeDrop } = useSidebarHandlers();
-  const [expandedCats, setExpandedCats] = useState<string[]>(["group", "compute", "network"]);
+  const [expandedCats, setExpandedCats] = useState<string[]>([
+    "group",
+    "compute",
+    "network",
+  ]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState<"resources" | "templates">("resources");
+  const [activeTab, setActiveTab] = useState<"resources" | "templates">(
+    "resources",
+  );
 
   const toggleCat = (id: string) =>
-    setExpandedCats(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
+    setExpandedCats((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id],
     );
 
-  const filteredNodes = useMemo(() =>
-    Object.entries(nodeDefinitions).filter(([_, cfg]) =>
-      cfg.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cfg.category.toLowerCase().includes(searchTerm.toLowerCase())
-    ), [searchTerm]);
+  const filteredNodes = useMemo(
+    () =>
+      Object.entries(nodeDefinitions).filter(
+        ([/* key */, cfg]) =>
+          cfg.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          cfg.category.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
+    [searchTerm],
+  );
 
   return (
     <aside className="w-72 flex flex-col bg-white border-l border-slate-200 h-full overflow-hidden">
-
       {/* ── HEADER ────────────────────────────────────────── */}
       <div className="px-4 pt-4 pb-3 border-b border-slate-100 shrink-0 space-y-3">
-
         {/* Title row */}
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest">
             Resources
           </span>
-          <span className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-400
-                           text-[10px] font-mono border border-slate-200">
+          <span
+            className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-400
+                           text-[10px] font-mono border border-slate-200"
+          >
             {Object.keys(nodeDefinitions).length} types
           </span>
         </div>
 
         {/* Tabs */}
         <div className="flex p-0.5 rounded-lg bg-slate-100 border border-slate-200">
-          {(["resources", "templates"] as const).map(tab => (
+          {(["resources", "templates"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`flex-1 py-1.5 rounded-md text-xs font-medium capitalize
                           transition-all duration-200
-                          ${activeTab === tab
-                            ? "bg-white text-slate-700 shadow-sm border border-slate-200"
-                            : "text-slate-400 hover:text-slate-600"}`}
+                          ${
+                            activeTab === tab
+                              ? "bg-white text-slate-700 shadow-sm border border-slate-200"
+                              : "text-slate-400 hover:text-slate-600"
+                          }`}
             >
               {tab}
             </button>
@@ -164,7 +178,7 @@ export function Sidebar() {
             type="text"
             placeholder="Search resources..."
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-8 pr-8 py-2 bg-slate-50 border border-slate-200
                        rounded-lg text-xs text-slate-600 placeholder-slate-300
                        focus:outline-none focus:ring-2 focus:ring-blue-500/20
@@ -184,22 +198,25 @@ export function Sidebar() {
         {/* Results count */}
         {searchTerm && (
           <p className="text-[10px] text-slate-400 px-1">
-            {filteredNodes.length} result{filteredNodes.length !== 1 && "s"} for "
-            <span className="text-slate-600 font-medium">{searchTerm}</span>"
+            {filteredNodes.length} result{filteredNodes.length !== 1 && "s"} for
+            &quot;
+            <span className="text-slate-600 font-medium">{searchTerm}</span>
+            &quot;
           </p>
         )}
       </div>
 
       {/* ── CONTENT ───────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5
+      <div
+        className="flex-1 overflow-y-auto py-3 px-3 space-y-0.5
                       scrollbar-thin scrollbar-track-transparent
-                      scrollbar-thumb-slate-200">
-
+                      scrollbar-thumb-slate-200"
+      >
         {activeTab === "resources" ? (
           <>
-            {CATEGORIES.map(cat => {
+            {CATEGORIES.map((cat) => {
               const catNodes = filteredNodes.filter(
-                ([_, cfg]) => cfg.category === cat.id && !cfg.isSku
+                ([/* key */, cfg]) => cfg.category === cat.id && !cfg.isSku,
               );
               if (catNodes.length === 0) return null;
 
@@ -207,7 +224,6 @@ export function Sidebar() {
 
               return (
                 <div key={cat.id} className="rounded-xl overflow-hidden">
-
                   {/* Category header */}
                   <button
                     onClick={() => toggleCat(cat.id)}
@@ -215,13 +231,17 @@ export function Sidebar() {
                                hover:bg-slate-50 transition-colors group rounded-xl"
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className={`w-6 h-6 rounded-md border flex items-center
-                                       justify-center shrink-0 ${cat.color}`}>
+                      <div
+                        className={`w-6 h-6 rounded-md border flex items-center
+                                       justify-center shrink-0 ${cat.color}`}
+                      >
                         {cat.icon}
                       </div>
-                      <span className="text-xs font-semibold text-slate-500
+                      <span
+                        className="text-xs font-semibold text-slate-500
                                        group-hover:text-slate-700 transition-colors
-                                       uppercase tracking-wide">
+                                       uppercase tracking-wide"
+                      >
                         {cat.label}
                       </span>
                       <span className="text-[10px] text-slate-300 font-mono">
@@ -238,8 +258,10 @@ export function Sidebar() {
 
                   {/* Nodes */}
                   {isExpanded && (
-                    <div className="px-1 pb-2 space-y-0.5
-                                    animate-in fade-in slide-in-from-top-1 duration-150">
+                    <div
+                      className="px-1 pb-2 space-y-0.5
+                                    animate-in fade-in slide-in-from-top-1 duration-150"
+                    >
                       {catNodes.map(([type, cfg]) => (
                         <NodeItem
                           key={type}
@@ -255,23 +277,31 @@ export function Sidebar() {
             })}
 
             {/* SKUs */}
-            {!searchTerm && (() => {
-              const skuNodes = filteredNodes.filter(([_, cfg]) => cfg.isSku);
-              if (skuNodes.length === 0) return null;
-              return (
-                <div className="mt-2 pt-3 border-t border-slate-100">
-                  <p className="px-3 py-1.5 text-[10px] font-semibold text-slate-400
-                                uppercase tracking-widest mb-1">
-                    SKUs & Tiers
-                  </p>
-                  <div className="space-y-0.5">
-                    {skuNodes.map(([type, cfg]) => (
-                      <NodeItem key={type} nodeType={type} config={cfg} onDrop={handleNodeDrop}/>
-                    ))}
+            {!searchTerm &&
+              (() => {
+                const skuNodes = filteredNodes.filter((item) => item[1].isSku);
+                if (skuNodes.length === 0) return null;
+                return (
+                  <div className="mt-2 pt-3 border-t border-slate-100">
+                    <p
+                      className="px-3 py-1.5 text-[10px] font-semibold text-slate-400
+                                uppercase tracking-widest mb-1"
+                    >
+                      SKUs & Tiers
+                    </p>
+                    <div className="space-y-0.5">
+                      {skuNodes.map(([type, cfg]) => (
+                        <NodeItem
+                          key={type}
+                          nodeType={type}
+                          config={cfg}
+                          onDrop={handleNodeDrop}
+                        />
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })()}
+                );
+              })()}
           </>
         ) : (
           <TemplatesTab />
@@ -282,15 +312,17 @@ export function Sidebar() {
       <div className="shrink-0 px-4 py-3 border-t border-slate-100 bg-slate-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"/>
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">
               Drag to canvas
             </span>
           </div>
-          <a href="#"
-             className="flex items-center gap-1 text-[10px] text-blue-400
-                        hover:text-blue-600 transition-colors">
-            <FiBookOpen size={10}/>
+          <a
+            href="#"
+            className="flex items-center gap-1 text-[10px] text-blue-400
+                        hover:text-blue-600 transition-colors"
+          >
+            <FiBookOpen size={10} />
             Docs
           </a>
         </div>
@@ -306,30 +338,36 @@ function TemplatesTab() {
       <p className="px-2 pb-1 text-[10px] text-slate-400 leading-relaxed">
         Starter architectures — click to load on canvas
       </p>
-      {TEMPLATES.map(tpl => (
+      {TEMPLATES.map((tpl) => (
         <button
           key={tpl.name}
           className={`w-full text-left p-3 rounded-xl border transition-all
                       duration-200 hover:shadow-sm group ${tpl.color}`}
         >
           <div className="flex items-start gap-3">
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center
-                             shrink-0 ${tpl.iconColor}`}>
+            <div
+              className={`w-8 h-8 rounded-lg flex items-center justify-center
+                             shrink-0 ${tpl.iconColor}`}
+            >
               {tpl.icon}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-slate-700
-                            group-hover:text-slate-900 transition-colors">
+              <p
+                className="text-xs font-semibold text-slate-700
+                            group-hover:text-slate-900 transition-colors"
+              >
                 {tpl.name}
               </p>
               <p className="text-[10px] text-slate-400 mt-0.5 leading-relaxed">
                 {tpl.description}
               </p>
               <div className="flex gap-1 mt-2 flex-wrap">
-                {tpl.tags.map(tag => (
-                  <span key={tag}
-                        className="px-1.5 py-0.5 rounded-md bg-white/80 border
-                                   border-slate-200 text-[9px] text-slate-400">
+                {tpl.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-1.5 py-0.5 rounded-md bg-white/80 border
+                                   border-slate-200 text-[9px] text-slate-400"
+                  >
                     {tag}
                   </span>
                 ))}

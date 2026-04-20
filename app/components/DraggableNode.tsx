@@ -3,7 +3,7 @@ import { useDraggable } from "@neodrag/react";
 import { XYPosition } from "@xyflow/react";
 import { useRef, useState } from "react";
 import { DragGhost } from "./DragGhost";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface DraggableNodeProps {
   className?: string;
   children: React.ReactNode;

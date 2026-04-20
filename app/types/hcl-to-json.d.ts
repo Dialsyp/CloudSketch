@@ -1,5 +1,6 @@
 // Déclaration pour hcl-to-json
-declare module 'hcl-to-json' {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+declare module "hcl-to-json" {
   export interface TerraformResource {
     type: string;
     name: string;

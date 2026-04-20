@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/preserve-manual-memoization */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useCallback, useRef, useState } from "react";
@@ -23,16 +23,14 @@ export function useReactFlowHandlers(initialNodes: any[]) {
 
   // 🔥 Handlers factorisés
   const handlers = {
-
     /********************************/
     /******* Nodes changes ******/
     /********************************/
     onNodesChange: useCallback(
       (changes: NodeChange<any>[]) =>
         setNodes((nds) => applyNodeChanges(changes, nds)),
-      [],
+      [setNodes],
     ),
-
 
     /********************************/
     /******* Edges changes ******/
@@ -111,7 +109,6 @@ export function useReactFlowHandlers(initialNodes: any[]) {
       },
       [setMenu],
     ),
-
 
     /********************************/
     /******* Context Menu Close ******/

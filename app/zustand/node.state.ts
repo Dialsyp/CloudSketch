@@ -7,7 +7,10 @@ interface DnDState {
   isDragging: boolean;
   dropAction: OnDropAction | null;
 
-  onDragStart: (event: React.PointerEvent<HTMLDivElement>, onDrop: OnDropAction) => void;
+  onDragStart: (
+    event: React.PointerEvent<HTMLDivElement>,
+    onDrop: OnDropAction,
+  ) => void;
   onDragEnd: (event: PointerEvent) => void;
   onDragMove: (event: PointerEvent) => void;
 
@@ -17,7 +20,10 @@ interface DnDState {
 export const useDnDStore = create<DnDState>((set, get) => {
   const { screenToFlowPosition } = useReactFlow();
 
-  const onDragStart = (event: React.PointerEvent<HTMLDivElement>, onDrop: OnDropAction) => {
+  const onDragStart = (
+    event: React.PointerEvent<HTMLDivElement>,
+    onDrop: OnDropAction,
+  ) => {
     event.preventDefault();
     (event.target as HTMLElement).setPointerCapture(event.pointerId);
     set({ isDragging: true, dropAction: onDrop });
@@ -33,13 +39,19 @@ export const useDnDStore = create<DnDState>((set, get) => {
 
     (event.target as HTMLElement).releasePointerCapture(event.pointerId);
 
-    const elementUnderPointer = document.elementFromPoint(event.clientX, event.clientY);
+    const elementUnderPointer = document.elementFromPoint(
+      event.clientX,
+      event.clientY,
+    );
     const isDroppingOnFlow = elementUnderPointer?.closest(".react-flow");
 
     event.preventDefault();
 
     if (isDroppingOnFlow && dropAction) {
-      const flowPosition = screenToFlowPosition({ x: event.clientX, y: event.clientY });
+      const flowPosition = screenToFlowPosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
       dropAction({ position: flowPosition });
     }
 

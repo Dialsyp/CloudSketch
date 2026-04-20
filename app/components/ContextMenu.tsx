@@ -1,8 +1,6 @@
-/* eslint-disable react-hooks/preserve-manual-memoization */
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { useReactFlow } from "@xyflow/react";
-import { useReactFlowHandlers } from "./useReactFlowHandlers";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export default function ContextMenu({
   id,
   top = 0,
@@ -38,10 +36,10 @@ export default function ContextMenu({
       position,
     });
   }, [id, getNode, addNodes]);
-  const closingMenu = () => {
+  const closingMenu = useCallback(() => {
     setIsEditing(false);
     onClose?.();
-  };
+  }, [onClose]);
   const deleteNode = useCallback(() => {
     setNodes((nodes) => {
       const idsToDelete = new Set([id]);
@@ -69,7 +67,7 @@ export default function ContextMenu({
       return nodes.filter((node) => !idsToDelete.has(node.id));
     });
     closingMenu();
-  }, [id, setNodes, setEdges]);
+  }, [id, setNodes, setEdges, closingMenu]);
 
   const saveNode = useCallback(() => {
     setNodes((nodes) =>
@@ -83,7 +81,7 @@ export default function ContextMenu({
       ),
     );
     closingMenu();
-  }, [id, setNodes, editData]);
+  }, [id, setNodes, editData, closingMenu]);
 
   const cancelEdit = () => {
     closingMenu();

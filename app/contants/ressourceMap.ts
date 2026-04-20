@@ -1,5 +1,4 @@
 const universalResourceMap: Record<string, string> = {
-
   // ========================
   // COMPUTE
   // ========================
@@ -140,6 +139,6 @@ const universalResourceMap: Record<string, string> = {
   google_monitoring_workspace: "observability",
 };
 
-export function getCategoryResource(resource: string){
-    return universalResourceMap[resource] || "unknown"
+export function getCategoryResource(resource: string) {
+  return universalResourceMap[resource] || "unknown";
 }

@@ -4,11 +4,11 @@
 import { useCallback } from "react";
 import { useReactFlow, XYPosition, Node } from "@xyflow/react";
 import { nodeDefinitions } from "../contants/nodeDefinition";
-import { 
-  getAbsolutePosition, 
-  isInFlowBounds, 
-  findParentContainer, 
-  findNodeAtPosition 
+import {
+  getAbsolutePosition,
+  isInFlowBounds,
+  findParentContainer,
+  findNodeAtPosition,
 } from "../utils/flowUtils";
 
 let nodeCounter = 0;
@@ -18,10 +18,10 @@ export function useSidebarHandlers() {
   const { setNodes, screenToFlowPosition, getNodes, setEdges } = useReactFlow();
 
   const handleDragHover = useCallback(
-    (screenPosition: XYPosition, draggingNodeType?: string) => {
+    (screenPosition: XYPosition) => {
       const dropPosition = screenToFlowPosition(screenPosition);
       const allNodes = getNodes();
-      
+
       setNodes((nds) =>
         nds.map((n) => {
           if (!n.data?.isContainer) return n;
@@ -32,23 +32,27 @@ export function useSidebarHandlers() {
           const h = n.measured?.height ?? (n.style?.height as number) ?? 200;
 
           const isHovering =
-            dropPosition.x >= abs.x && dropPosition.x <= abs.x + w &&
-            dropPosition.y >= abs.y && dropPosition.y <= abs.y + h;
+            dropPosition.x >= abs.x &&
+            dropPosition.x <= abs.x + w &&
+            dropPosition.y >= abs.y &&
+            dropPosition.y <= abs.y + h;
 
           return {
             ...n,
             style: {
               ...n.style,
-              background: isHovering ? (def?.color + "30") : (def?.color + "15"),
-              border: isHovering ? `2.5px dashed ${def?.color}` : `2px dashed ${def?.color}80`,
+              background: isHovering ? def?.color + "30" : def?.color + "15",
+              border: isHovering
+                ? `2.5px dashed ${def?.color}`
+                : `2px dashed ${def?.color}80`,
               boxShadow: isHovering ? `0 0 20px ${def?.color}40` : "none",
               transition: "all 0.2s ease",
             },
           };
-        })
+        }),
       );
     },
-    [setNodes, screenToFlowPosition, getNodes]
+    [setNodes, screenToFlowPosition, getNodes],
   );
 
   const handleNodeDrop = useCallback(
@@ -66,7 +70,13 @@ export function useSidebarHandlers() {
       if (def.isSku) {
         const target = findNodeAtPosition(allNodes, position, def.skuFor);
         if (target) {
-          setNodes((nds) => nds.map((n) => n.id === target.id ? { ...n, data: { ...n.data, ...def.defaults } } : n));
+          setNodes((nds) =>
+            nds.map((n) =>
+              n.id === target.id
+                ? { ...n, data: { ...n.data, ...def.defaults } }
+                : n,
+            ),
+          );
         }
         return;
       }
@@ -75,8 +85,10 @@ export function useSidebarHandlers() {
       const parent = findParentContainer(allNodes, position);
       const isRG = nodeType === "azurerm_resource_group";
       if (!isRG && !parent) {
-        alert("🚫 Action impossible : Sur Azure, toutes les ressources doivent être créées à l'intérieur d'un Resource Group.");
-        return; 
+        alert(
+          "🚫 Action impossible : Sur Azure, toutes les ressources doivent être créées à l'intérieur d'un Resource Group.",
+        );
+        return;
       }
 
       let finalPos = position;
@@ -84,9 +96,9 @@ export function useSidebarHandlers() {
 
       if (parent) {
         const absParent = getAbsolutePosition(parent, allNodes);
-        finalPos = { 
-          x: Math.max(20, position.x - absParent.x), 
-          y: Math.max(40, position.y - absParent.y) 
+        finalPos = {
+          x: Math.max(20, position.x - absParent.x),
+          y: Math.max(40, position.y - absParent.y),
         };
         inheritedData = {
           location: parent.data?.location,
@@ -98,11 +110,11 @@ export function useSidebarHandlers() {
         id: getId(),
         type: nodeType,
         position: finalPos,
-        data: { 
-          label: def.label, 
-          isContainer: def.isContainer ?? false, 
+        data: {
+          label: def.label,
+          isContainer: def.isContainer ?? false,
           ...def.defaults,
-          ...inheritedData 
+          ...inheritedData,
         },
         ...(def.isContainer && {
           style: {
@@ -118,84 +130,108 @@ export function useSidebarHandlers() {
       };
 
       setNodes((nds) => {
-        const resetNodes = parent ? nds.map(n => {
-          if (n.id !== parent.id) return n;
-          const d = nodeDefinitions[n.type as keyof typeof nodeDefinitions];
-          return {
-            ...n,
-            style: {
-              ...n.style,
-              background: (d?.color ?? "#3b82f6") + "15",
-              border: `2px dashed ${d?.color ?? "#3b82f6"}80`,
-              boxShadow: "none",
-            }
-          };
-        }) : nds;
+        const resetNodes = parent
+          ? nds.map((n) => {
+              if (n.id !== parent.id) return n;
+              const d = nodeDefinitions[n.type as keyof typeof nodeDefinitions];
+              return {
+                ...n,
+                style: {
+                  ...n.style,
+                  background: (d?.color ?? "#3b82f6") + "15",
+                  border: `2px dashed ${d?.color ?? "#3b82f6"}80`,
+                  boxShadow: "none",
+                },
+              };
+            })
+          : nds;
         return [...resetNodes, newNode] as Node[];
       });
 
       if (parent) {
-        setEdges((eds) => [...eds, {
-          id: `e_${parent.id}_${newNode.id}`,
-          source: parent.id,
-          target: newNode.id,
-          // Unification des handles
-          sourceHandle: "source",
-          targetHandle: "target",
-          type: "smoothstep",
-          style: { stroke: "#94a3b8", strokeWidth: 1.5, strokeDasharray: "4 2" },
-        }]);
+        setEdges((eds) => [
+          ...eds,
+          {
+            id: `e_${parent.id}_${newNode.id}`,
+            source: parent.id,
+            target: newNode.id,
+            // Unification des handles
+            sourceHandle: "source",
+            targetHandle: "target",
+            type: "smoothstep",
+            style: {
+              stroke: "#94a3b8",
+              strokeWidth: 1.5,
+              strokeDasharray: "4 2",
+            },
+          },
+        ]);
       }
     },
-    [setNodes, setEdges, screenToFlowPosition, getNodes]
+    [setNodes, setEdges, screenToFlowPosition, getNodes],
   );
 
   /**
    * 🔥 REPARENTING LOGIC
    * Détecte si un nœud a été déplacé sur un nouveau parent sur le canvas.
    */
-  const handleNodeDragStop = useCallback((event: any, node: Node) => {
-    const allNodes = getNodes();
-    const absPos = getAbsolutePosition(node, allNodes);
-    const newParent = findParentContainer(allNodes.filter(n => n.id !== node.id), absPos);
-    
-    if (newParent && newParent.id !== node.parentId) {
-      const absParent = getAbsolutePosition(newParent, allNodes);
-      const relativePos = {
-        x: Math.max(20, absPos.x - absParent.x),
-        y: Math.max(40, absPos.y - absParent.y),
-      };
+  const handleNodeDragStop = useCallback(
+    (event: any, node: Node) => {
+      const allNodes = getNodes();
+      const absPos = getAbsolutePosition(node, allNodes);
+      const newParent = findParentContainer(
+        allNodes.filter((n) => n.id !== node.id),
+        absPos,
+      );
 
-      setNodes((nds) => nds.map((n) => {
-        if (n.id !== node.id) return n;
-        return {
-          ...n,
-          parentId: newParent.id,
-          position: relativePos,
-          extent: "parent" as const,
-          data: {
-            ...n.data,
-            location: newParent.data?.location,
-            resource_group_name: newParent.data?.name,
-          }
+      if (newParent && newParent.id !== node.parentId) {
+        const absParent = getAbsolutePosition(newParent, allNodes);
+        const relativePos = {
+          x: Math.max(20, absPos.x - absParent.x),
+          y: Math.max(40, absPos.y - absParent.y),
         };
-      }));
 
-      // Mettre à jour le edge hiérarchique avec handles unifiés
-      setEdges((eds) => {
-        const filtered = eds.filter(e => e.target !== node.id);
-        return [...filtered, {
-          id: `e_${newParent.id}_${node.id}`,
-          source: newParent.id,
-          target: node.id,
-          sourceHandle: "source",
-          targetHandle: "target",
-          type: "smoothstep",
-          style: { stroke: "#94a3b8", strokeWidth: 1.5, strokeDasharray: "4 2" },
-        }];
-      });
-    }
-  }, [getNodes, setNodes, setEdges]);
+        setNodes((nds) =>
+          nds.map((n) => {
+            if (n.id !== node.id) return n;
+            return {
+              ...n,
+              parentId: newParent.id,
+              position: relativePos,
+              extent: "parent" as const,
+              data: {
+                ...n.data,
+                location: newParent.data?.location,
+                resource_group_name: newParent.data?.name,
+              },
+            };
+          }),
+        );
+
+        // Mettre à jour le edge hiérarchique avec handles unifiés
+        setEdges((eds) => {
+          const filtered = eds.filter((e) => e.target !== node.id);
+          return [
+            ...filtered,
+            {
+              id: `e_${newParent.id}_${node.id}`,
+              source: newParent.id,
+              target: node.id,
+              sourceHandle: "source",
+              targetHandle: "target",
+              type: "smoothstep",
+              style: {
+                stroke: "#94a3b8",
+                strokeWidth: 1.5,
+                strokeDasharray: "4 2",
+              },
+            },
+          ];
+        });
+      }
+    },
+    [getNodes, setNodes, setEdges],
+  );
 
   return { handleNodeDrop, handleDragHover, handleNodeDragStop };
 }

@@ -1,4 +1,5 @@
 // app/nodesTypes/subnet.nodeType.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { memo } from "react";
 import { BaseResourceNode, NodeInfoRow } from "./shared/BaseResourceNode";

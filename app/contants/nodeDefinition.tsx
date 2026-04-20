@@ -1,22 +1,13 @@
 // contants/nodeDefinition.ts
-import {
-  // Network
-  BiNetworkChart,
-  BiData,
-} from "react-icons/bi";
+
 import {
   MdOutlineStorage,
-  MdOutlineSecurity,
-  MdOutlineMonitor,
-  MdOutlineRouter,
   MdOutlineCloud,
 } from "react-icons/md";
 import {
-  FiServer,
   FiHardDrive,
   FiDatabase,
   FiEye,
-  FiGlobe,
   FiWifi,
   FiShield,
   FiPackage,
@@ -25,7 +16,6 @@ import {
 import { HiOutlineRectangleGroup, HiOutlineCpuChip } from "react-icons/hi2";
 import { SiKubernetes, SiLinux } from "react-icons/si";
 import {
-  TbBrandAzure,
   TbTopologyRing,
   TbChartLine,
   TbNetwork,
@@ -34,7 +24,6 @@ import {
 } from "react-icons/tb";
 import { RiSpeedUpLine } from "react-icons/ri";
 import type { IconType } from "react-icons";
-import type { JSX } from "react";
 import { FaWindows } from "react-icons/fa";
 
 /* ─────────────────────────────────────────────
