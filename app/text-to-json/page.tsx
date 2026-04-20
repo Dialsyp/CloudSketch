@@ -1,14 +1,13 @@
 "use client";
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { useState } from "react";
 import {
   buildTree,
-  Edge,
-  Node,
   parseTerraform,
   RenderNode,
-} from "../components/parseTerraform";
-// import { buildTree, parseTerraform, RenderNode } from "./components/parseTerraform";
+  type Node,
+  type Edge,
+} from "@/components/parseTerraform";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 
 export default function Home() {
   const [input, setInput] = useState("");

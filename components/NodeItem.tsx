@@ -1,9 +1,9 @@
 // components/NodeItem.tsx
 
 import { XYPosition } from "@xyflow/react";
-import { nodeDefinitions } from "../contants/nodeDefinition";
 import DraggableNode  from "./DraggableNode";
 import { PropsWithChildren } from "react";
+import { nodeDefinitions } from "@/app/contants/nodeDefinition";
 
 interface NodeItemPropsBase {
   nodeType: string;
