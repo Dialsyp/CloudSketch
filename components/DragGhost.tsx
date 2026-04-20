@@ -1,8 +1,8 @@
 // app/components/DragGhost.tsx
 "use client";
 import { useEffect, useState } from "react";
-import { nodeDefinitions } from "../contants/nodeDefinition";
 import { XYPosition } from "@xyflow/react";
+import { nodeDefinitions } from "@/app/contants/nodeDefinition";
 
 export function DragGhost({
   payload,

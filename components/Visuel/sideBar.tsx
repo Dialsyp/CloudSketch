@@ -17,10 +17,9 @@ import {
   MdOutlineSecurity,
 } from "react-icons/md";
 import { BiNetworkChart, BiData } from "react-icons/bi";
-
-import { nodeDefinitions } from "../contants/nodeDefinition";
-import { NodeItem } from "./NodeItem";
-import { useSidebarHandlers } from "./useSidebarHandlers";
+import { useSidebarHandlers } from "../useSidebarHandlers";
+import { nodeDefinitions } from "@/app/contants/nodeDefinition";
+import { NodeItem } from "../NodeItem";
 
 /* ── CATEGORIES ─────────────────────────────────────────────── */
 const CATEGORIES = [
@@ -125,7 +124,7 @@ export function Sidebar() {
   const filteredNodes = useMemo(
     () =>
       Object.entries(nodeDefinitions).filter(
-        ([/* key */, cfg]) =>
+        ([, /* key */ cfg]) =>
           cfg.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
           cfg.category.toLowerCase().includes(searchTerm.toLowerCase()),
       ),
@@ -186,6 +185,7 @@ export function Sidebar() {
           />
           {searchTerm && (
             <button
+              type="button"
               onClick={() => setSearchTerm("")}
               className="absolute right-2.5 top-1/2 -translate-y-1/2
                          text-slate-300 hover:text-slate-500 transition-colors"
@@ -216,7 +216,7 @@ export function Sidebar() {
           <>
             {CATEGORIES.map((cat) => {
               const catNodes = filteredNodes.filter(
-                ([/* key */, cfg]) => cfg.category === cat.id && !cfg.isSku,
+                ([, /* key */ cfg]) => cfg.category === cat.id && !cfg.isSku,
               );
               if (catNodes.length === 0) return null;
 

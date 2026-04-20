@@ -2,8 +2,8 @@
 "use client";
 import { ReactFlow, Controls, Background } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { config } from "../contants/config";
 import ContextMenu from "./ContextMenu";
+import { config } from "@/app/contants/config";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface FlowCanvasProps {
   nodes: any[];
@@ -22,7 +22,6 @@ export function FlowCanvas({
   reactFlowRef,
   onNodeDragStop
 }: FlowCanvasProps) {
-  console.log("Rendering FlowCanvas with nodes:", nodes[3], "and edges:", edges[3]);
   return (
     <div className="flex-1 h-full relative">
       <ReactFlow

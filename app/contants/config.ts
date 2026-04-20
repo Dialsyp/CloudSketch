@@ -1,10 +1,21 @@
 // constants/config.ts
+import AksClusterNodeType from "../nodesTypes/aksCluster.nodeType";
+
+import AppInsightsNodeType from "../nodesTypes/appInsights.nodeType";
+import CosmosDbNodeType from "../nodesTypes/cosmosDb.nodeType";
+import LogAnalyticsNodeType from "../nodesTypes/logAnalytics.nodeType";
 import NicNodeType from "../nodesTypes/nic.nodeType";
+import NsgNodeType from "../nodesTypes/nsg.nodeType";
 import PublicIpNodeType from "../nodesTypes/publicIp.nodeType";
 import RgNodeType from "../nodesTypes/rg.nodeType";
+import RouteTableNodeType from "../nodesTypes/routeTable.nodeType";
+import SqlDatabaseNodeType from "../nodesTypes/sqlDatabase.nodeType";
+import SqlServerNodeType from "../nodesTypes/sqlServer.nodeType";
 import StorageNodeType from "../nodesTypes/storage.nodeType";
+import StorageContainerNodeType from "../nodesTypes/storageContainer.nodeType";
 import SubnetNodeType from "../nodesTypes/subnet.nodeType";
 import VmNodeType from "../nodesTypes/vm.nodeType";
+import VmScaleSetNodeType from "../nodesTypes/vmScaleSet.nodeType";
 import VnetNodeType from "../nodesTypes/Vnet.nodeType";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const config = {
@@ -38,12 +49,35 @@ export const config = {
   ],
 
   nodeTypes: {
+    // Containers
     azurerm_resource_group: RgNodeType,
     azurerm_virtual_network: VnetNodeType,
     azurerm_subnet: SubnetNodeType,
-    azurerm_public_ip: PublicIpNodeType,
-    azurerm_network_interface: NicNodeType,
-    azurerm_storage_account: StorageNodeType,
+    azurerm_kubernetes_cluster: AksClusterNodeType,
+
+    // Compute
     azurerm_linux_virtual_machine: VmNodeType,
+    azurerm_windows_virtual_machine: VmNodeType,
+    azurerm_linux_virtual_machine_scale_set: VmScaleSetNodeType,
+    azurerm_windows_virtual_machine_scale_set: VmScaleSetNodeType,
+
+    // Networking
+    azurerm_network_interface: NicNodeType,
+    azurerm_public_ip: PublicIpNodeType,
+    azurerm_network_security_group: NsgNodeType,
+    azurerm_route_table: RouteTableNodeType,
+
+    // Storage
+    azurerm_storage_account: StorageNodeType,
+    azurerm_storage_container: StorageContainerNodeType,
+
+    // Databases
+    azurerm_sql_server: SqlServerNodeType,
+    azurerm_sql_database: SqlDatabaseNodeType,
+    azurerm_cosmosdb_account: CosmosDbNodeType,
+
+    // Monitoring
+    azurerm_log_analytics_workspace: LogAnalyticsNodeType,
+    azurerm_application_insights: AppInsightsNodeType,
   } as Record<string, any>,
 };

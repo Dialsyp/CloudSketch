@@ -3,13 +3,9 @@
 "use client";
 import { useCallback } from "react";
 import { useReactFlow, XYPosition, Node } from "@xyflow/react";
-import { nodeDefinitions } from "../contants/nodeDefinition";
-import {
-  getAbsolutePosition,
-  isInFlowBounds,
-  findParentContainer,
-  findNodeAtPosition,
-} from "../utils/flowUtils";
+import { nodeDefinitions } from "@/app/contants/nodeDefinition";
+import { findNodeAtPosition, findParentContainer, getAbsolutePosition, isInFlowBounds } from "@/app/utils/flowUtils";
+
 
 let nodeCounter = 0;
 export const getId = () => `node_${Date.now()}_${nodeCounter++}`;
@@ -58,28 +54,16 @@ export function useSidebarHandlers() {
   const handleNodeDrop = useCallback(
     (nodeType: string, screenPosition: XYPosition) => {
       const flow = document.querySelector(".react-flow") as HTMLElement;
+      console.log("Drop detected:", { nodeType, screenPosition, flow });
+
       const flowRect = flow?.getBoundingClientRect();
       if (!flowRect || !isInFlowBounds(screenPosition, flowRect)) return;
 
       const position = screenToFlowPosition(screenPosition);
+      console.log("Calculated flow position:", position);
       const def = nodeDefinitions[nodeType];
       if (!def) return;
       const allNodes = getNodes();
-
-      // SKU Logic
-      if (def.isSku) {
-        const target = findNodeAtPosition(allNodes, position, def.skuFor);
-        if (target) {
-          setNodes((nds) =>
-            nds.map((n) =>
-              n.id === target.id
-                ? { ...n, data: { ...n.data, ...def.defaults } }
-                : n,
-            ),
-          );
-        }
-        return;
-      }
 
       // Node Creation
       const parent = findParentContainer(allNodes, position);
@@ -90,10 +74,10 @@ export function useSidebarHandlers() {
         );
         return;
       }
-
+      
       let finalPos = position;
       let inheritedData = {};
-
+      console.log("Parent container found:", parent);
       if (parent) {
         const absParent = getAbsolutePosition(parent, allNodes);
         finalPos = {
@@ -148,6 +132,8 @@ export function useSidebarHandlers() {
         return [...resetNodes, newNode] as Node[];
       });
 
+      console.log("all nodes: ", allNodes);
+
       if (parent) {
         setEdges((eds) => [
           ...eds,
@@ -179,6 +165,7 @@ export function useSidebarHandlers() {
     (event: any, node: Node) => {
       const allNodes = getNodes();
       const absPos = getAbsolutePosition(node, allNodes);
+
       const newParent = findParentContainer(
         allNodes.filter((n) => n.id !== node.id),
         absPos,
