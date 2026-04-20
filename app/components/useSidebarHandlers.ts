@@ -1,190 +1,201 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // hooks/useSidebarHandlers.ts
+"use client";
 import { useCallback } from "react";
-import { useReactFlow, XYPosition } from "@xyflow/react";
+import { useReactFlow, XYPosition, Node } from "@xyflow/react";
 import { nodeDefinitions } from "../contants/nodeDefinition";
+import { 
+  getAbsolutePosition, 
+  isInFlowBounds, 
+  findParentContainer, 
+  findNodeAtPosition 
+} from "../utils/flowUtils";
 
-let id = 0;
-export const getId = () => `dndnode_${id++}`;
-const DEBUG_HITBOX = true;
+let nodeCounter = 0;
+export const getId = () => `node_${Date.now()}_${nodeCounter++}`;
+
 export function useSidebarHandlers() {
-  const { setNodes, screenToFlowPosition, getNodes } = useReactFlow();
-  // 🔥 NOUVEAU : Hover pendant drag
+  const { setNodes, screenToFlowPosition, getNodes, setEdges } = useReactFlow();
 
   const handleDragHover = useCallback(
-    (screenPosition: XYPosition) => {
+    (screenPosition: XYPosition, draggingNodeType?: string) => {
       const dropPosition = screenToFlowPosition(screenPosition);
       const allNodes = getNodes();
-      // Highlight parent container
-      allNodes.forEach((node: any) => {
-        console.log(node)
-        if (!(node as any).isContainer) return;
+      
+      setNodes((nds) =>
+        nds.map((n) => {
+          if (!n.data?.isContainer) return n;
 
-        const w = node.measured?.width || 150;
-        const h = node.measured?.height || 80;
-        const absolutePos = getAbsolutePosition(node, allNodes);
-        const isHovering =
-          dropPosition.x >= absolutePos.x &&
-          dropPosition.x <= absolutePos.x + w &&
-          dropPosition.y >= absolutePos.y &&
-          dropPosition.y <= absolutePos.y + h;
-        // 🔥 UPDATE STYLE hover
-        setNodes((nds) =>
-          nds.map((n) =>
-            n.id === node.id
-              ? {
-                  ...n,
-                  style: {
-                    ...n.style,
-                    border: isHovering ? "2px solid" : n.style?.border,
-                    background: isHovering
-                      ? "rgba(16, 185, 129, 0.2)"
-                      : nodeDefinitions[n.type]?.background,
-                    boxShadow: isHovering
-                      ? "0 0 20px rgba(16, 185, 129, 0.4)"
-                      : "none",
-                  },
-                }
-              : n,
-          ),
-        );
-      });
+          const def = nodeDefinitions[n.type as keyof typeof nodeDefinitions];
+          const abs = getAbsolutePosition(n, allNodes);
+          const w = n.measured?.width ?? (n.style?.width as number) ?? 300;
+          const h = n.measured?.height ?? (n.style?.height as number) ?? 200;
+
+          const isHovering =
+            dropPosition.x >= abs.x && dropPosition.x <= abs.x + w &&
+            dropPosition.y >= abs.y && dropPosition.y <= abs.y + h;
+
+          return {
+            ...n,
+            style: {
+              ...n.style,
+              background: isHovering ? (def?.color + "30") : (def?.color + "15"),
+              border: isHovering ? `2.5px dashed ${def?.color}` : `2px dashed ${def?.color}80`,
+              boxShadow: isHovering ? `0 0 20px ${def?.color}40` : "none",
+              transition: "all 0.2s ease",
+            },
+          };
+        })
+      );
     },
-    [setNodes, screenToFlowPosition, getNodes],
+    [setNodes, screenToFlowPosition, getNodes]
   );
 
   const handleNodeDrop = useCallback(
     (nodeType: string, screenPosition: XYPosition) => {
-      // Vérif flow bounds
       const flow = document.querySelector(".react-flow") as HTMLElement;
       const flowRect = flow?.getBoundingClientRect();
       if (!flowRect || !isInFlowBounds(screenPosition, flowRect)) return;
 
       const position = screenToFlowPosition(screenPosition);
-      const parentNode = findParentContainer(getNodes(), position);
       const def = nodeDefinitions[nodeType];
-      let finalPosition = position;
-      if (parentNode) {
-        finalPosition = {
-          x: Math.max(10, position.x - parentNode.position.x),
-          y: Math.max(10, position.y - parentNode.position.y),
+      if (!def) return;
+      const allNodes = getNodes();
+
+      // SKU Logic
+      if (def.isSku) {
+        const target = findNodeAtPosition(allNodes, position, def.skuFor);
+        if (target) {
+          setNodes((nds) => nds.map((n) => n.id === target.id ? { ...n, data: { ...n.data, ...def.defaults } } : n));
+        }
+        return;
+      }
+
+      // Node Creation
+      const parent = findParentContainer(allNodes, position);
+      const isRG = nodeType === "azurerm_resource_group";
+      if (!isRG && !parent) {
+        alert("🚫 Action impossible : Sur Azure, toutes les ressources doivent être créées à l'intérieur d'un Resource Group.");
+        return; 
+      }
+
+      let finalPos = position;
+      let inheritedData = {};
+
+      if (parent) {
+        const absParent = getAbsolutePosition(parent, allNodes);
+        finalPos = { 
+          x: Math.max(20, position.x - absParent.x), 
+          y: Math.max(40, position.y - absParent.y) 
+        };
+        inheritedData = {
+          location: parent.data?.location,
+          resource_group_name: parent.data?.name,
         };
       }
-      const newNode = createNewNode(nodeType, finalPosition, def, parentNode);
+
+      const newNode = {
+        id: getId(),
+        type: nodeType,
+        position: finalPos,
+        data: { 
+          label: def.label, 
+          isContainer: def.isContainer ?? false, 
+          ...def.defaults,
+          ...inheritedData 
+        },
+        ...(def.isContainer && {
+          style: {
+            width: def.defaultSize?.width ?? 400,
+            height: def.defaultSize?.height ?? 300,
+            background: (def.color ?? "#3b82f6") + "15",
+            border: `2px dashed ${def.color ?? "#3b82f6"}80`,
+            borderRadius: "12px",
+            zIndex: 0,
+          },
+        }),
+        ...(parent && { parentId: parent.id, extent: "parent" as const }),
+      };
+
       setNodes((nds) => {
-        const cleanedDebug = nds.filter((n) => !n.data.isDebugHitbox);
-        const newNodes = cleanedDebug.concat(newNode);
-
-        // Reset style parent
-        if (parentNode) {
-          return newNodes.map((n) =>
-            n.id === parentNode.id
-              ? {
-                  ...n,
-                  style: {
-                    ...parentNode.style,
-                    border: parentNode.style?.border,
-                    background: parentNode.style?.background,
-                    boxShadow: "none",
-                  },
-                }
-              : n,
-          );
-        }
-
-        return newNodes;
+        const resetNodes = parent ? nds.map(n => {
+          if (n.id !== parent.id) return n;
+          const d = nodeDefinitions[n.type as keyof typeof nodeDefinitions];
+          return {
+            ...n,
+            style: {
+              ...n.style,
+              background: (d?.color ?? "#3b82f6") + "15",
+              border: `2px dashed ${d?.color ?? "#3b82f6"}80`,
+              boxShadow: "none",
+            }
+          };
+        }) : nds;
+        return [...resetNodes, newNode] as Node[];
       });
-    },
-    [setNodes, screenToFlowPosition, getNodes, nodeDefinitions],
-  );
 
-  return { handleNodeDrop, handleDragHover };
-}
-function getAbsolutePosition(node: any, allNodes: any[]): XYPosition {
-  const pos: XYPosition = { x: node.position.x, y: node.position.y };
-  if (node.parentId) {
-    const parent = allNodes.find((n) => n.id === node.parentId);
-    if (parent) {
-      const parentPos = getAbsolutePosition(parent, allNodes);
-      pos.x += parentPos.x;
-      pos.y += parentPos.y;
-    }
-  }
-
-  return pos;
-}
-function isInFlowBounds(position: XYPosition, flowRect: DOMRect): boolean {
-  return (
-    position.x >= flowRect.left &&
-    position.x <= flowRect.right &&
-    position.y >= flowRect.top &&
-    position.y <= flowRect.bottom
-  );
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function findParentContainer(allNodes: any[], dropPosition: XYPosition) {
-  const candidates = allNodes
-    .filter((node) => node.isContainer)
-    .map((container) => {
-      const absolutePos = getAbsolutePosition(container, allNodes);
-      const w = container.measured?.width || 150;
-      const h = container.measured?.height || 80;
-
-      const isInside =
-        dropPosition.x >= absolutePos.x &&
-        dropPosition.x <= absolutePos.x + w &&
-        dropPosition.y >= absolutePos.y &&
-        dropPosition.y <= absolutePos.y + h;
-
-      if (isInside) {
-        const centerX = absolutePos.x + w / 2;
-        const centerY = absolutePos.y + h / 2;
-        const distance = Math.sqrt(
-          Math.pow(dropPosition.x - centerX, 2) +
-            Math.pow(dropPosition.y - centerY, 2),
-        );
-
-        return { node: container, distance, area: w * h };
+      if (parent) {
+        setEdges((eds) => [...eds, {
+          id: `e_${parent.id}_${newNode.id}`,
+          source: parent.id,
+          target: newNode.id,
+          // Unification des handles
+          sourceHandle: "source",
+          targetHandle: "target",
+          type: "smoothstep",
+          style: { stroke: "#94a3b8", strokeWidth: 1.5, strokeDasharray: "4 2" },
+        }]);
       }
-      return null;
-    })
-    .filter(Boolean);
-
-  if (candidates.length === 0) return null;
-
-  return candidates.sort((a, b) =>
-    a!.distance !== b!.distance ? a!.distance - b!.distance : b!.area - a!.area,
-  )[0]!.node;
-}
-
-function createNewNode(
-  nodeType: string,
-  position: XYPosition,
-  def: any,
-  parentNode?: any,
-) {
-  const nodeBase = {
-    id: getId(),
-    type: nodeType,
-    position,
-    data: {
-      // label: def?.label || nodeType,
-      name: `${nodeType.split("_").pop()}-${getId()}`,
-      // isContainer: def?.isContainer || false,
-      ...def?.defaults,
     },
-    isContainer: def?.isContainer || false,
-  };
+    [setNodes, setEdges, screenToFlowPosition, getNodes]
+  );
 
-  if (parentNode) {
-    return {
-      ...nodeBase,
-      parentId: parentNode.id,
-      extent: "parent",
-      // expandParent: true,
-    };
-  }
+  /**
+   * 🔥 REPARENTING LOGIC
+   * Détecte si un nœud a été déplacé sur un nouveau parent sur le canvas.
+   */
+  const handleNodeDragStop = useCallback((event: any, node: Node) => {
+    const allNodes = getNodes();
+    const absPos = getAbsolutePosition(node, allNodes);
+    const newParent = findParentContainer(allNodes.filter(n => n.id !== node.id), absPos);
+    
+    if (newParent && newParent.id !== node.parentId) {
+      const absParent = getAbsolutePosition(newParent, allNodes);
+      const relativePos = {
+        x: Math.max(20, absPos.x - absParent.x),
+        y: Math.max(40, absPos.y - absParent.y),
+      };
 
-  return nodeBase;
+      setNodes((nds) => nds.map((n) => {
+        if (n.id !== node.id) return n;
+        return {
+          ...n,
+          parentId: newParent.id,
+          position: relativePos,
+          extent: "parent" as const,
+          data: {
+            ...n.data,
+            location: newParent.data?.location,
+            resource_group_name: newParent.data?.name,
+          }
+        };
+      }));
+
+      // Mettre à jour le edge hiérarchique avec handles unifiés
+      setEdges((eds) => {
+        const filtered = eds.filter(e => e.target !== node.id);
+        return [...filtered, {
+          id: `e_${newParent.id}_${node.id}`,
+          source: newParent.id,
+          target: node.id,
+          sourceHandle: "source",
+          targetHandle: "target",
+          type: "smoothstep",
+          style: { stroke: "#94a3b8", strokeWidth: 1.5, strokeDasharray: "4 2" },
+        }];
+      });
+    }
+  }, [getNodes, setNodes, setEdges]);
+
+  return { handleNodeDrop, handleDragHover, handleNodeDragStop };
 }

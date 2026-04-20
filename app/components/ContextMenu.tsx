@@ -18,7 +18,7 @@ export default function ContextMenu({
 }) {
   const { getNode, setNodes, addNodes, setEdges } = useReactFlow();
   const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({});
+  const [editData, setEditData] = useState<Record<string, any>>({});
   const node = getNode(id);
   const currentData = node?.data || {};
 
@@ -43,8 +43,31 @@ export default function ContextMenu({
     onClose?.();
   };
   const deleteNode = useCallback(() => {
-    setNodes((nodes) => nodes.filter((node) => node.id !== id));
-    setEdges((edges) => edges.filter((edge) => edge.source !== id));
+    setNodes((nodes) => {
+      const idsToDelete = new Set([id]);
+
+      // Trouver tous les descendants récursivement
+      const findDescendants = (parentId: string) => {
+        nodes.forEach((n) => {
+          if (n.parentId === parentId) {
+            idsToDelete.add(n.id);
+            findDescendants(n.id);
+          }
+        });
+      };
+
+      findDescendants(id);
+
+      // Supprimer nodes et edges associés
+      setEdges((edges) =>
+        edges.filter(
+          (edge) =>
+            !idsToDelete.has(edge.source) && !idsToDelete.has(edge.target),
+        ),
+      );
+
+      return nodes.filter((node) => !idsToDelete.has(node.id));
+    });
     closingMenu();
   }, [id, setNodes, setEdges]);
 
@@ -102,9 +125,15 @@ export default function ContextMenu({
           >
             🗑️ Supprimer
           </button>
+          <button
+            onClick={cancelEdit}
+            className="border-none block p-2 text-left w-full hover:bg-gray-100 rounded-b-md"
+          >
+            ❌ Annuler
+          </button>
         </>
       ) : (
-        <div className="p-3 space-y-3">
+        <div className="p-3 space-y-3 h-100 overflow-y-auto custom-scrollbar">
           {currentData &&
             Object.entries(currentData).map(([key, value], index) => (
               <div key={key || index} className="space-y-1">

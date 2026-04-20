@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useDraggable } from "@neodrag/react";
 import { XYPosition } from "@xyflow/react";
 import { useRef, useState } from "react";
 import { DragGhost } from "./DragGhost";
-import { useSidebarHandlers } from "./useSidebarHandlers";
 
 export interface DraggableNodeProps {
   className?: string;
@@ -15,6 +13,7 @@ export interface DraggableNodeProps {
     position: XYPosition,
     extras?: Record<string, any>,
   ) => void;
+  isSku?: boolean;
 }
 
 export default function DraggableNode({
@@ -23,58 +22,54 @@ export default function DraggableNode({
   nodeType,
   onDrop,
 }: DraggableNodeProps) {
-  const draggableRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<XYPosition>({ x: 0, y: 0 });
-  const [dragPayload, setDragPayload] = useState<{
-    nodeType: string;
-    screenPos: XYPosition;
-  } | null>(null);
-  const { handleDragHover } = useSidebarHandlers();
-  useDraggable(draggableRef as React.RefObject<HTMLElement>, {
-    position: position,
-    onDragStart: ({ event }) => {
-      setDragPayload({
-        nodeType,
-        screenPos: { x: event.clientX, y: event.clientY },
-      });
-    },
-    onDrag: ({ event, offsetX, offsetY }) => {
-      setPosition({ x: offsetX, y: offsetY });
+  // 🔑 Ref sur un div invisible de taille 0, pas sur le vrai item
+  const invisibleRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [ghostPos, setGhostPos] = useState<XYPosition>({ x: 0, y: 0 });
 
-      // 🔥 PENDANT DRAG → Update position pour hover
-      if (dragPayload) {
-        setDragPayload({
-          nodeType,
-          screenPos: { x: event.clientX, y: event.clientY },
-        });
-      }
+  useDraggable(invisibleRef as React.RefObject<HTMLElement>, {
+    position: { x: 0, y: 0 },
+
+    onDragStart: ({ event }) => {
+      setIsDragging(true);
+      setGhostPos({ x: event.clientX, y: event.clientY });
     },
+
+    onDrag: ({ event }) => {
+      setGhostPos({ x: event.clientX, y: event.clientY });
+    },
+
     onDragEnd: ({ event }) => {
-      setPosition({ x: 0, y: 0 });
-      setDragPayload(null);
-      onDrop(nodeType, {
-        x: event.clientX,
-        y: event.clientY,
-      });
+      setIsDragging(false);
+      onDrop(nodeType, { x: event.clientX, y: event.clientY });
     },
   });
+
   return (
-    <>
+    // Wrapper relatif pour que le div invisible soit bien positionné
+    <div className={`relative ${className ?? ""}`}>
+      {/* ✅ Vrai item — ne bouge JAMAIS */}
       <div
-        ref={draggableRef}
-        className="draggable-node"
-        style={{ zIndex: 9999 }}
+        style={{ opacity: isDragging ? 0.4 : 1, transition: "opacity 0.15s" }}
       >
         {children}
       </div>
 
-      {/* 🔥 DRAG GHOST → Envoie payload pour hover */}
-      {dragPayload && (
-        <DragGhost
-          payload={dragPayload}
-          onHoverParent={handleDragHover} // Callback vers Sidebar
-        />
-      )}
-    </>
+      {/* 🔑 Div invisible qui capture le drag à la place */}
+      <div
+        ref={invisibleRef}
+        style={{
+          position: "absolute",
+          inset: 0, // couvre tout le vrai item
+          cursor: isDragging ? "grabbing" : "grab",
+          zIndex: 10,
+          // complètement invisible mais cliquable
+          background: "transparent",
+        }}
+      />
+
+      {/* Ghost qui suit le curseur */}
+      {isDragging && <DragGhost payload={{ nodeType, screenPos: ghostPos }} />}
+    </div>
   );
 }

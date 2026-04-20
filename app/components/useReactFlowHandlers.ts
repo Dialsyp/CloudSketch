@@ -23,18 +23,29 @@ export function useReactFlowHandlers(initialNodes: any[]) {
 
   // 🔥 Handlers factorisés
   const handlers = {
+
+    /********************************/
+    /******* Nodes changes ******/
+    /********************************/
     onNodesChange: useCallback(
       (changes: NodeChange<any>[]) =>
         setNodes((nds) => applyNodeChanges(changes, nds)),
       [],
     ),
 
+
+    /********************************/
+    /******* Edges changes ******/
+    /********************************/
     onEdgesChange: useCallback(
       (changes: EdgeChange<never>[]) =>
         setEdges((eds) => applyEdgeChanges(changes, eds)),
       [],
     ),
 
+    /********************************/
+    /******* Edge Connection ******/
+    /********************************/
     onConnect: useCallback(
       (params: any) => setEdges((eds) => addEdge(params, eds)),
       [],
@@ -80,6 +91,9 @@ export function useReactFlowHandlers(initialNodes: any[]) {
     //   [setNodes],
     // ),
 
+    /********************************/
+    /******* Context Menu Open ******/
+    /********************************/
     onNodeContextMenu: useCallback(
       (
         event: { preventDefault: () => void; clientY: any; clientX: any },
@@ -98,6 +112,10 @@ export function useReactFlowHandlers(initialNodes: any[]) {
       [setMenu],
     ),
 
+
+    /********************************/
+    /******* Context Menu Close ******/
+    /********************************/
     onPaneClick: useCallback(() => setMenu(null), []),
   };
 
@@ -110,5 +128,6 @@ export function useReactFlowHandlers(initialNodes: any[]) {
     screenToFlowPosition,
     getNodes,
     setNodes,
+    setEdges,
   };
 }

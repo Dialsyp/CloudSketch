@@ -16,12 +16,17 @@ export function NodeItem({ nodeType, onDrop, config }: NodeItemProps) {
   //   const hasDetails = Object.values(config.defaults)[0];
 
   return (
-    <DraggableNode nodeType={nodeType} onDrop={onDrop} className="z-50">
+    <DraggableNode
+      nodeType={nodeType}
+      onDrop={onDrop}
+      className="z-50"
+      isSku={config.isSku}
+    >
       <div className="flex items-center">
         {/* Icône */}
         <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-xl group-hover:scale-110 transition-all duration-300 shrink-0">
           <span className="text-2xl group-hover:animate-bounce">
-            {config.icon}
+            <config.icon />
           </span>
         </div>
 
