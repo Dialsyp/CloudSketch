@@ -4,6 +4,7 @@ export interface BaseNodeData {
   name: string;
   label?: string;
   location?: string;
+  position: { x: number; y: number };
 }
 
 export interface VmData extends BaseNodeData {

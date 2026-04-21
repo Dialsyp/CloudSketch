@@ -52,7 +52,9 @@ export const BaseResourceNode = memo(
               {def.label}
             </p>
             <p className="text-sm font-bold truncate">
-              {data.name || "unnamed"}
+              {`${data.name} (${data.xPos}, ${data.yPos})  ` || "unnamed"}{" "}
+              <br />
+              {`${data.parentId || "none"}`}
             </p>
           </div>
         </div>
@@ -63,9 +65,14 @@ export const BaseResourceNode = memo(
         )}
 
         {/* Footer / Terraform Type */}
+
         <div className="px-4 py-1.5 text-[9px] font-mono opacity-40 italic flex justify-between items-center">
           <span>{type}</span>
           {data.location && <span>📍 {data.location}</span>}
+        </div>
+        <div className="px-4 py-1.5 text-[9px] font-mono opacity-40 italic flex justify-between items-center">
+          <span>{data?.nodeId}</span>
+          {data.parentId || "none"}
         </div>
 
         {/* Output Handle (Source) - Optionnel selon besoin */}

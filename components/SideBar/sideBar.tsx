@@ -17,9 +17,9 @@ import {
   MdOutlineSecurity,
 } from "react-icons/md";
 import { BiNetworkChart, BiData } from "react-icons/bi";
-import { useSidebarHandlers } from "../useSidebarHandlers";
-import { nodeDefinitions } from "@/app/contants/nodeDefinition";
+import { useSidebarHandlers } from "./useSidebarHandlers";
 import { NodeItem } from "../NodeItem";
+import { nodeDefinitions } from "@/contants/nodeDefinition";
 
 /* ── CATEGORIES ─────────────────────────────────────────────── */
 const CATEGORIES = [

@@ -1,14 +1,23 @@
+import { isContainer } from "@/components/SideBar/useSidebarHandlers";
 import { XYPosition } from "@xyflow/react";
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * Calcule la position absolue d'un nœud dans le canvas,
  * en tenant compte de l'imbrication dans des parents.
  */
-export function getAbsolutePosition(node: any, allNodes: any[]): XYPosition {
+export function getAbsolutePosition(node: any, allNodes: any[] ): XYPosition {
+  /** position absolue element */
   const pos: XYPosition = { x: node.position.x, y: node.position.y };
+
+
+  /** si le nœud a un parent */
   if (node.parentId) {
+    /*** position absolue du parent */
     const parent = allNodes.find((n) => n.id === node.parentId);
+    /** si le parent existe */
     if (parent) {
+      /** position absolue du parent par rapport à son parent (recursive) */
       const parentPos = getAbsolutePosition(parent, allNodes);
       pos.x += parentPos.x;
       pos.y += parentPos.y;
@@ -35,11 +44,18 @@ export function isInFlowBounds(
 /**
  * Trouve le container le plus spécifique (plus petite surface ou plus haute priorité)
  * à une position donnée.
+ * 
+ * @augments allNodes: tous les nœuds du canvas (pour calculer les positions absolues)
+ * @augments dropPosition: position de la souris lors du drop (en coordonnées écran)
+ * 
+ * @returns le nœud conteneur trouvé ou null s'il n'y en a aucun.
  */
 export function findParentContainer(
   allNodes: any[],
   dropPosition: XYPosition,
 ): any | null {
+
+
   const CONTAINER_PRIORITY: Record<string, number> = {
     azurerm_subnet: 0,
     azurerm_virtual_network: 1,
@@ -47,7 +63,7 @@ export function findParentContainer(
   };
 
   const candidates = allNodes
-    .filter((node) => node.data?.isContainer === true)
+    .filter((node) => isContainer(node))
     .map((container) => {
       const absolutePos = getAbsolutePosition(container, allNodes);
       const w =

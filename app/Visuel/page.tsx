@@ -1,29 +1,19 @@
 "use client";
 
-import { useSidebarHandlers } from "@/components/useSidebarHandlers";
-import { config } from "../contants/config";
+import { useSidebarHandlers } from "@/components/SideBar/useSidebarHandlers";
 import { useReactFlowHandlers } from "@/components/useReactFlowHandlers";
 import { HeaderSection } from "@/components/Visuel/Sections";
 import { FlowCanvas } from "@/components/FlowCanvas";
-import { Sidebar } from "@/components/Visuel/sideBar";
-import { useCallback, useState } from "react";
-import { useReactFlow } from "@xyflow/react";
-import { MouseTracker } from "./MouseTracker";
+import { Sidebar } from "@/components/SideBar/sideBar";
+import { MouseTracker } from "../../components/MouseTracker";
+import { config } from "@/contants/config";
 
 export default function Visuel() {
   const { nodes, edges, menu, reactFlowRef, handlers } = useReactFlowHandlers(
     config.initialNodes,
   );
-  const { screenToFlowPosition } = useReactFlow();
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { handleNodeDragStop } = useSidebarHandlers();
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      const pos = screenToFlowPosition({ x: e.clientX, y: e.clientY });
-      setMousePos({ x: Math.round(pos.x), y: Math.round(pos.y) });
-    },
-    [screenToFlowPosition],
-  );
+ 
   return (
     <div className="w-screen h-screen flex flex-col bg-[#0a0a0f] overflow-hidden">
       {/* ── TOPBAR ───────────────────────────────────────────────── */}
@@ -32,7 +22,7 @@ export default function Visuel() {
       {/* ── EDITOR BODY ──────────────────────────────────────────── */}
       <div className="flex-1 flex overflow-hidden">
         {/* Canvas */}
-        <main className="flex-1 relative overflow-hidden " onMouseMove={handleMouseMove}>
+        <main className="flex-1 relative overflow-hidden ">
           <FlowCanvas
             nodes={nodes}
             edges={edges}

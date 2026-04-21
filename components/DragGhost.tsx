@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { XYPosition } from "@xyflow/react";
-import { nodeDefinitions } from "@/app/contants/nodeDefinition";
+import { nodeDefinitions } from "@/contants/nodeDefinition";
 
 export function DragGhost({
   payload,

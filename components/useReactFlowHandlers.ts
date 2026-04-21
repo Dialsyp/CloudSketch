@@ -49,46 +49,7 @@ export function useReactFlowHandlers(initialNodes: any[]) {
       [],
     ),
 
-    // onNodeMouseEnter: useCallback(
-    //   (event, node) => {
-    //     if (node.data.isContainer) {
-    //       setNodes((nds) =>
-    //         nds.map((n) =>
-    //           n.id === node.id
-    //             ? {
-    //                 ...n,
-    //                 style: {
-    //                   ...n.style,
-    //                   border: "3px solid #10b981",
-    //                   background: "rgba(16, 185, 129, 0.15)",
-    //                 },
-    //                 data: { ...n.data, isHovered: true },
-    //               }
-    //             : n,
-    //         ),
-    //       );
-    //     }
-    //   },
-    //   [setNodes],
-    // ),
-
-    // onNodeMouseLeave: useCallback(
-    //   (event, node) => {
-    //     setNodes((nds) =>
-    //       nds.map((n) =>
-    //         n.id === node.id
-    //           ? {
-    //               ...n,
-    //               style: n.style || {},
-    //               data: { ...n.data, isHovered: false },
-    //             }
-    //           : n,
-    //       ),
-    //     );
-    //   },
-    //   [setNodes],
-    // ),
-
+   
     /********************************/
     /******* Context Menu Open ******/
     /********************************/

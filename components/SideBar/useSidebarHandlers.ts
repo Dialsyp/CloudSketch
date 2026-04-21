@@ -3,15 +3,16 @@
 "use client";
 import { useCallback } from "react";
 import { useReactFlow, XYPosition, Node } from "@xyflow/react";
-import { nodeDefinitions } from "@/app/contants/nodeDefinition";
-import { findNodeAtPosition, findParentContainer, getAbsolutePosition, isInFlowBounds } from "@/app/utils/flowUtils";
+import { nodeDefinitions } from "@/contants/nodeDefinition";
+import { findParentContainer, getAbsolutePosition, isInFlowBounds } from "@/utils/flowUtils";
+
 
 
 let nodeCounter = 0;
 export const getId = () => `node_${Date.now()}_${nodeCounter++}`;
 
 export function useSidebarHandlers() {
-  const { setNodes, screenToFlowPosition, getNodes, setEdges } = useReactFlow();
+  const { setNodes, screenToFlowPosition, flowToScreenPosition, getNodes, setEdges } = useReactFlow();
 
   const handleDragHover = useCallback(
     (screenPosition: XYPosition) => {
@@ -20,7 +21,7 @@ export function useSidebarHandlers() {
 
       setNodes((nds) =>
         nds.map((n) => {
-          if (!n.data?.isContainer) return n;
+          if (!isContainer(n)) return n;
 
           const def = nodeDefinitions[n.type as keyof typeof nodeDefinitions];
           const abs = getAbsolutePosition(n, allNodes);
@@ -60,80 +61,91 @@ export function useSidebarHandlers() {
       if (!flowRect || !isInFlowBounds(screenPosition, flowRect)) return;
 
       const position = screenToFlowPosition(screenPosition);
-      console.log("Calculated flow position:", position);
+
       const def = nodeDefinitions[nodeType];
       if (!def) return;
       const allNodes = getNodes();
 
-      // Node Creation
+      /** conteneur parent le plus proche de la position de dépôt */
       const parent = findParentContainer(allNodes, position);
+
+      /** est ce qu'il s'agit d'un Resource Group */
       const isRG = nodeType === "azurerm_resource_group";
+
+
+      /** Vérification de la validité du dépôt si ce n'est pas un Resource Group 
+       * et qu'aucun parent n'est trouvé c'est une action impossible */
       if (!isRG && !parent) {
         alert(
           "🚫 Action impossible : Sur Azure, toutes les ressources doivent être créées à l'intérieur d'un Resource Group.",
         );
         return;
       }
-      
+
+
       let finalPos = position;
-      let inheritedData = {};
-      console.log("Parent container found:", parent);
+      /** Position finale du nœud si un parent est trouvé */
       if (parent) {
         const absParent = getAbsolutePosition(parent, allNodes);
         finalPos = {
-          x: Math.max(20, position.x - absParent.x),
-          y: Math.max(40, position.y - absParent.y),
-        };
-        inheritedData = {
-          location: parent.data?.location,
-          resource_group_name: parent.data?.name,
+          x: Math.round(position.x - absParent.x),
+          y: Math.round(position.y - absParent.y),
         };
       }
 
+      /** Nouveau nœud à créer */
       const newNode = {
         id: getId(),
         type: nodeType,
         position: finalPos,
         data: {
           label: def.label,
-          isContainer: def.isContainer ?? false,
           ...def.defaults,
-          ...inheritedData,
         },
+        isContainer: def.isContainer ?? false,
         ...(def.isContainer && {
           style: {
-            width: def.defaultSize?.width ?? 400,
-            height: def.defaultSize?.height ?? 300,
+            width: def.defaultSize?.width,
+            height: def.defaultSize?.height,
             background: (def.color ?? "#3b82f6") + "15",
             border: `2px dashed ${def.color ?? "#3b82f6"}80`,
             borderRadius: "12px",
             zIndex: 0,
           },
+          width: def.defaultSize?.width,
+          height: def.defaultSize?.height,
+          measured: {                              
+            width: def.defaultSize?.width,
+            height: def.defaultSize?.height,
+          },
         }),
+        selected: false,
+        dragging: false,
+        resizing: false,
         ...(parent && { parentId: parent.id, extent: "parent" as const }),
       };
 
+      /** Mise à jour des nœuds */
       setNodes((nds) => {
         const resetNodes = parent
           ? nds.map((n) => {
-              if (n.id !== parent.id) return n;
-              const d = nodeDefinitions[n.type as keyof typeof nodeDefinitions];
-              return {
-                ...n,
-                style: {
-                  ...n.style,
-                  background: (d?.color ?? "#3b82f6") + "15",
-                  border: `2px dashed ${d?.color ?? "#3b82f6"}80`,
-                  boxShadow: "none",
-                },
-              };
-            })
+            if (n.id !== parent.id) return n;
+            const d = nodeDefinitions[n.type as keyof typeof nodeDefinitions];
+            return {
+              ...n,
+              style: {
+                ...n.style,
+                background: (d?.color ?? "#3b82f6") + "15",
+                border: `2px dashed ${d?.color ?? "#3b82f6"}80`,
+                boxShadow: "none",
+              },
+            };
+          })
           : nds;
         return [...resetNodes, newNode] as Node[];
       });
 
-      console.log("all nodes: ", allNodes);
-
+      /** Mise à jour des edges si un parent est trouvé pour cree une relation entre le parent et le nouveau nœud */
       if (parent) {
         setEdges((eds) => [
           ...eds,
@@ -160,22 +172,34 @@ export function useSidebarHandlers() {
   /**
    * 🔥 REPARENTING LOGIC
    * Détecte si un nœud a été déplacé sur un nouveau parent sur le canvas.
+   * 
+   * @argument _event : l'événement de fin de drag (non utilisé ici mais nécessaire pour la signature)
+   * @argument node : le nœud qui a été déplacé
+   * 
+   * @returns Met à jour le parentId du nœud déplacé et ajuste sa position pour qu'elle soit relative au nouveau parent.
+   * 
    */
   const handleNodeDragStop = useCallback(
-    (event: any, node: Node) => {
+    (_event: any, node: Node) => {
+
       const allNodes = getNodes();
+
+      /** position par rapport au flow */
       const absPos = getAbsolutePosition(node, allNodes);
+      /** position par rapport à l'écran */
+      const screenPos = flowToScreenPosition(absPos);
+
 
       const newParent = findParentContainer(
         allNodes.filter((n) => n.id !== node.id),
-        absPos,
+        screenPos,
       );
 
       if (newParent && newParent.id !== node.parentId) {
         const absParent = getAbsolutePosition(newParent, allNodes);
         const relativePos = {
-          x: Math.max(20, absPos.x - absParent.x),
-          y: Math.max(40, absPos.y - absParent.y),
+          x: Math.round(absPos.x - absParent.x),
+          y: Math.round(absPos.y - absParent.y),
         };
 
         setNodes((nds) =>
@@ -190,6 +214,7 @@ export function useSidebarHandlers() {
                 ...n.data,
                 location: newParent.data?.location,
                 resource_group_name: newParent.data?.name,
+                parentId: newParent.id,
               },
             };
           }),
@@ -217,8 +242,18 @@ export function useSidebarHandlers() {
         });
       }
     },
-    [getNodes, setNodes, setEdges],
+    [getNodes, setNodes, setEdges, flowToScreenPosition],
   );
 
   return { handleNodeDrop, handleDragHover, handleNodeDragStop };
+}
+
+
+export function isContainer(node: Node) {
+
+
+  if (!node.data) return false;
+  const def = nodeDefinitions[node.type as keyof typeof nodeDefinitions];
+
+  return def?.isContainer === true;
 }

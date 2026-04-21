@@ -19,7 +19,7 @@ const VmNodeType = memo(
     const isLinux = type === "azurerm_linux_virtual_machine";
 
     return (
-      <BaseResourceNode id={id} type={type} selected={selected} data={data}>
+      <BaseResourceNode id={id} type={type} selected={selected} data={data } >
         <NodeInfoRow label="Size" value={data.size} />
         <NodeInfoRow label="Admin" value={data.admin_username} />
         <NodeInfoRow label="OS" value={isLinux ? "Linux" : "Windows"} />

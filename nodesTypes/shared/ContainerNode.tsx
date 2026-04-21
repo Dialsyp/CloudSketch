@@ -69,7 +69,7 @@ export const ContainerNode = memo(
             style={{ backgroundColor: borderColor }}
           >
             <span>{icon}</span>
-            <span className="truncate max-w-[140px]">{label}</span>
+            <span className="truncate max-w-max">{label}</span>
           </div>
 
           {/* Sublabel (location, etc.) */}
