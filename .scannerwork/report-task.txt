@@ -1,0 +1,6 @@
+projectKey=cloudsketch
+serverUrl=http://localhost:9000
+serverVersion=26.3.0.120487
+dashboardUrl=http://localhost:9000/dashboard?id=cloudsketch
+ceTaskId=a108f456-bb9f-47c7-a2ba-9cf5bdf0bcda
+ceTaskUrl=http://localhost:9000/api/ce/task?id=a108f456-bb9f-47c7-a2ba-9cf5bdf0bcda

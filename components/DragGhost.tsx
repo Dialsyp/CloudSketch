@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { XYPosition } from "@xyflow/react";
 import { nodeDefinitions } from "@/contants/nodeDefinition";
 
-export function DragGhost({
-  payload,
-}: {
-  payload: { nodeType: string; screenPos: XYPosition };
-}) {
+type DragGhostProps = {
+  payload: {
+    nodeType: string;
+    screenPos: XYPosition;
+  };
+};
+
+export function DragGhost({ payload }: Readonly<DragGhostProps>) {
   const [pos, setPos] = useState<XYPosition>(payload.screenPos);
 
   useEffect(() => {

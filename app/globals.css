@@ -1,8 +1,4 @@
 @import "tailwindcss";
-:root {
-  --background: #ffffff;
-  --foreground: #ededed;
-}
 .resizer-node__handles {
   display: flex;
   position: absolute;
@@ -10,11 +6,6 @@
   width: 100%;
   justify-content: space-evenly;
   left: 0;
-}
-/* Dans ton global CSS */
-.react-flow {
-  position: relative;
-  z-index: 1;
 }
 
 .dndnode {
@@ -63,6 +54,8 @@ body {
 /* xyflow theme files. Delete these to start from our base */
 
 .react-flow {
+  position: relative;
+  z-index: 1;
   --xy-background-color: #f7f9fb;
   /* Custom Variables */
   --xy-theme-selected: #f57dbd;
@@ -183,6 +176,8 @@ body {
 */
 
 :root {
+  --background: #ffffff;
+  --foreground: #ededed;
   --color-primary: #ff0073;
   --color-background: #fefefe;
   --color-hover-bg: #f6f6f6;

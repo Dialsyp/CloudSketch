@@ -1,6 +1,6 @@
 "use client";
 
-import { useSidebarHandlers } from "@/components/SideBar/useSidebarHandlers";
+import { useSidebarHandlers } from "@/components/useSidebarHandlers";
 import { useReactFlowHandlers } from "@/components/useReactFlowHandlers";
 import { HeaderSection } from "@/components/Visuel/Sections";
 import { FlowCanvas } from "@/components/FlowCanvas";
@@ -13,7 +13,7 @@ export default function Visuel() {
     config.initialNodes,
   );
   const { handleNodeDragStop } = useSidebarHandlers();
- 
+
   return (
     <div className="w-screen h-screen flex flex-col bg-[#0a0a0f] overflow-hidden">
       {/* ── TOPBAR ───────────────────────────────────────────────── */}
@@ -44,20 +44,18 @@ export default function Visuel() {
                             bg-[#0d0d14]/50 border border-white/5
                             backdrop-blur-sm text-xs text-white/30"
             >
-              <kbd
-                className="px-1.5 py-0.5 rounded bg-white/5 text-white/40
-                              font-mono text-[10px]"
+              <div
+                className="px-1.5 py-0.5 rounded bg-white/5 text-white/40 font-mono text-[10px]"
               >
                 Scroll
-              </kbd>
-              to zoom ·
-              <kbd
-                className="px-1.5 py-0.5 rounded bg-white/5 text-white/40
-                              font-mono text-[10px]"
+              </div>
+              <span className="mx-1">to zoom ·</span>
+              <div
+                className="px-1.5 py-0.5 rounded bg-white/5 text-white/40 font-mono text-[10px]"
               >
                 Right-click
-              </kbd>
-              on a node for options
+              </div>
+              <span className="ml-1">on a node for options</span>
             </div>
           </div>
         </main>

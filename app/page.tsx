@@ -15,7 +15,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-500 to-violet-600 flex items-center justify-center">
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path
                   d="M2 4h5v5H2zM9 7h5v5H9zM4 2h3v3H4z"
@@ -71,6 +71,7 @@ export default function Home() {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden text-white/60"
+            aria-label="Toggle menu"
           >
             <div className="w-5 h-0.5 bg-current mb-1" />
             <div className="w-5 h-0.5 bg-current mb-1" />
@@ -85,14 +86,14 @@ export default function Home() {
       <section className="relative pt-32 pb-24 px-6 overflow-hidden">
         {/* Background glow */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/10 rounded-full blur-3xl" />
-          <div className="absolute top-1/3 left-1/3 w-[400px] h-[300px] bg-violet-600/8 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-200 h-100 bg-blue-600/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/3 left-1/3 w-100 h-75 bg-violet-600/8 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-5xl mx-auto text-center">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm text-white/60 mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />{" "}
             Now supporting Azure & AWS resources
           </div>
 
@@ -100,7 +101,7 @@ export default function Home() {
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
             Design your infra
             <br />
-            <span className="bg-gradient-to-r from-blue-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-blue-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
               visually.
             </span>
           </h1>
@@ -117,9 +118,9 @@ export default function Home() {
               className="group w-full sm:w-auto px-8 py-4 bg-white text-black font-semibold rounded-xl hover:bg-white/90 transition-all text-base flex items-center justify-center gap-2"
             >
               Open Editor
-              <span className="group-hover:translate-x-1 transition-transform">
+              {/* <span className="group-hover:translate-x-1 transition-transform">
                 →
-              </span>
+              </span> */}
             </Link>
             <Link
               href="#demo"
@@ -517,12 +518,12 @@ export default function Home() {
                 <ul className="space-y-3">
                   {links.map((link) => (
                     <li key={link}>
-                      <a
-                        href="#"
+                      <Link
+                        href={`/${link.toLowerCase().replaceAll(/\s+/g, "-")}`}
                         className="text-white/30 hover:text-white/60 transition-colors"
                       >
                         {link}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>

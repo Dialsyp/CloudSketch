@@ -198,10 +198,8 @@ export function Sidebar() {
         {/* Results count */}
         {searchTerm && (
           <p className="text-[10px] text-slate-400 px-1">
-            {filteredNodes.length} result{filteredNodes.length !== 1 && "s"} for
-            &quot;
+            {filteredNodes.length} result{filteredNodes.length !== 1 && "s"} for{" "}
             <span className="text-slate-600 font-medium">{searchTerm}</span>
-            &quot;
           </p>
         )}
       </div>
@@ -317,14 +315,14 @@ export function Sidebar() {
               Drag to canvas
             </span>
           </div>
-          <a
-            href="#"
+          <button
+            type="button"
             className="flex items-center gap-1 text-[10px] text-blue-400
                         hover:text-blue-600 transition-colors"
           >
             <FiBookOpen size={10} />
             Docs
-          </a>
+          </button>
         </div>
       </div>
     </aside>
